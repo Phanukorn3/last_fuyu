@@ -24,7 +24,7 @@ export default function Login() {
       );
 
       console.log(response.data);
-      navigate("/");
+      navigate("/home");
     } catch (err) {
       console.error(err);
       if (err.response && err.response.data) {

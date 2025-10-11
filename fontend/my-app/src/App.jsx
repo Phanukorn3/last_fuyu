@@ -4,6 +4,8 @@ import Dashboard from "./pages/Dashboard";
 import Customers from "./pages/Customers";
 import Login from "./pages/Login"
 import Register from "./pages/Register"
+import Home from "./pages/Home"
+
 
 function LayoutWithNavbar() {
   return (
@@ -19,6 +21,7 @@ function LayoutWithNavbar() {
   );
 }
 
+
 export default function App() {
   return (
     <Router>
@@ -26,6 +29,7 @@ export default function App() {
         <Route path="/*" element={<LayoutWithNavbar />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/home" element={<Home />} />
       </Routes>
     </Router>
   );
