@@ -4,9 +4,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Sum, Value
 from django.db.models.functions import Concat
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import login
 
 from shop.models import *
-from shop.serializers import ProductSerializer, CustomerSerializer
+from shop.serializers import ProductSerializer, CustomerSerializer, RegisterSerializer, LoginSerializer
 # Create your views here.
 
 
@@ -46,3 +48,29 @@ class CustomerstList(APIView):
         return Response({
             "customers": serializer.data
         })
+
+# @csrf_exempt
+class Register(APIView):
+    
+    # def get(self, request, format=None):
+    #     regis = User.objects.all()
+    #     serializer = RegisterSerializer(regis, many=True)
+    #     return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class Login(APIView):
+
+    def post(self, request, format=None):
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.validated_data['user']
+            login(request, user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    

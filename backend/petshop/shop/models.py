@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import User
 
 
 # Create your models here.
@@ -9,10 +10,9 @@ STATUS_CHOICES = [
         ('fail', 'Fail'),
         ('complete', 'Complete'),
     ]
-    
+
 class Customer(models.Model):
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     phone_number = models.CharField(max_length=15)
     address = models.TextField(blank=True, null=True)
     role = models.CharField(max_length=20, default='user')
