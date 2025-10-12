@@ -12,13 +12,13 @@ export default function Navbar() {
       <h1 className="text-lg font-bold text-gray-800">FuyuShop</h1></div>
       <div className="flex gap-6">
         <Link
-          to="/"
+          to="/admdin/"
           className="text-gray-600 hover:text-blue-600 font-medium"
         >
           Product
         </Link>
         <Link
-          to="/customers"
+          to="/admin/customers/"
           className="text-gray-600 hover:text-blue-600 font-medium"
         >
           Customer
