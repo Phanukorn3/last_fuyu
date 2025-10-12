@@ -10,7 +10,6 @@ export default function Home() {
 <div className="flex flex-col w-auto h-auto mt-[12%]">
   <h2 className="text-red-600 text-3xl mb-12 ml-10">Discover our products</h2>
 
-  {/* กล่อง card เรียงแนวนอน */}
   <div className="flex flex-row gap-5 mx-auto">
     <div className="flex flex-col w-sm h-auto border-1 rounded-2xl p-6 items-center ">
       <img src={Icon} alt="" />
