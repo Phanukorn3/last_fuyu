@@ -48,7 +48,7 @@ export default function Login() {
             name="username"
             value={form.username}
             onChange={handleChange}
-            placeholder="กรอกชื่อของคุณ"
+            placeholder="กรอกชื่อผู้ใช้ของคุณ"
             className="mb-2"
           />
           <TextInput
@@ -68,8 +68,13 @@ export default function Login() {
           >
             Login
           </button>
-          <div className="flex mt-1 mr-5 justify-end text-sm items-end text-gray-500 hover:underline hover:text-blue-400">
+          <div className="flex justify-between">
+          <div className="flex mt-1 mr-5 text-sm items-end text-gray-500 hover:underline hover:text-blue-400">
             <Link to="/register">หากคุณยังไม่มีบัญชี</Link>
+          </div>
+          <div className="flex mt-1 mr-5 text-sm items-end text-gray-500 hover:underline hover:text-blue-400">
+            <Link to="/resetpassword">ลืมรหัสผ่าน?</Link>
+          </div>
           </div>
         </form>
       </div>

@@ -24,12 +24,11 @@ export default function Home() {
         Discover our products
       </h2>
 
-      <div className="flex flex-row gap-25 mx-auto flex-wrap justify-center">
+      <div className="flex flex-row gap-25 mx-auto flex-wrap justify-start ml-20">
         {products &&
-          products.map((product) => (
-            <Link to="/login">
+          products.slice(0, 10).map((product) => (
+            <Link to="/user/product" key={product.id}>
             <div
-              key={product.id}
               className="group flex flex-col w-65 h-auto border items-center border-white rounded-2xl transition-all hover:scale-110 shadow-md p-5"
             >
               <img
@@ -38,7 +37,6 @@ export default function Home() {
                 className="w-auto h-auto object-cover mb-3"
               />
               <h3 className="text-md text-gray-800 font-medium group-hover:text-red-500">{product.name}</h3>
-              <p className="text-gray-600 mt-2">{product.price} บาท</p>
             </div></Link>
           ))}
       </div>

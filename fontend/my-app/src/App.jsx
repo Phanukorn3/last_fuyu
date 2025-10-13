@@ -6,6 +6,8 @@ import Customers from "./pages/Customers";
 import Login from "./pages/Login"
 import Register from "./pages/Register"
 import Home from "./pages/Home"
+import Product from "./pages/Product"
+import Resetpassword from "./pages/ResetPassword"
 
 
 function LayoutWithNavbar() {
@@ -28,6 +30,7 @@ function LayoutWithNavbaruser() {
       <div className="p-6">
         <Routes>
           <Route path="/home" element={<Home />} />
+          <Route path="/product" element={<Product />} />
         </Routes>
       </div>
     </>
@@ -43,6 +46,7 @@ export default function App() {
         <Route path="/user/*" element={<LayoutWithNavbaruser />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/resetpassword" element={<Resetpassword />} />
       </Routes>
     </Router>
   );

@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    categories = serializers.StringRelatedField(many=True)
     class Meta:
         model = Product
         fields = [
@@ -96,4 +97,19 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError("Username หรือ password ไม่ถูกต้อง")
         
         data['user'] = user
+        return data
+
+# ยังไม่เสร็จ
+class ResetPasswordSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+    confirm_pass = serializers.CharField(write_only=True)
+    
+    def validate(self, data):
+        username = data.get("username")
+        password = data.get("password")
+        confirm_pass = data.get("con_new_password")
+        
+        if not username or not password or not confirm_pass:
+            raise serializers.ValidationError("กรุณากรอกข้อมูลให้ครบ")
         return data
