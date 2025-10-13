@@ -1,34 +1,47 @@
-// import React, { useState } from "react";
-// import { Link, useNavigate } from "react-router-dom";
-import Icon from "../assets/fuyuicon.png";
-// import TextInput from "../components/TextInput";
-// import axios from "axios";
-import Card from "../components/Card";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function Home() {
-  return (
-<div className="flex flex-col w-auto h-auto mt-[12%]">
-  <h2 className="text-red-600 text-3xl mb-12 ml-10">Discover our products</h2>
+  const [products, setProducts] = useState([]);
 
-  {/* กล่อง card เรียงแนวนอน */}
-  <div className="flex flex-row gap-5 mx-auto">
-    <div className="flex flex-col w-sm h-auto border-1 rounded-2xl p-6 items-center ">
-      <img src={Icon} alt="" />
-      <h3>อาหารลูกแมว</h3>
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get("http://localhost:8000/api/product/");
+        setProducts(res.data.products);
+        console.log(res.data.products);
+      } catch (err) {
+        console.error("ไม่สามารถดึงข้อมูลสินค้าได้:", err);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+  return (
+    <div className="flex flex-col w-auto h-auto mt-[12%]">
+      <h2 className="text-red-600 text-3xl mb-12 ml-10">
+        Discover our products
+      </h2>
+
+      <div className="flex flex-row gap-25 mx-auto flex-wrap justify-center">
+        {products &&
+          products.map((product) => (
+            <Link to="/login">
+            <div
+              key={product.id}
+              className="group flex flex-col w-65 h-auto border items-center border-white rounded-2xl transition-all hover:scale-110 shadow-md p-5"
+            >
+              <img
+                src={`http://localhost:8000${product.picture}`}
+                alt={product.name}
+                className="w-auto h-auto object-cover mb-3"
+              />
+              <h3 className="text-md text-gray-800 font-medium group-hover:text-red-500">{product.name}</h3>
+              <p className="text-gray-600 mt-2">{product.price} บาท</p>
+            </div></Link>
+          ))}
+      </div>
     </div>
-    <div className="flex flex-col w-sm h-auto border-1 rounded-2xl p-6 items-center ">
-      <img src={Icon} alt="" />
-      <h3>อาหารลูกแมว</h3>
-    </div>
-    <div className="flex flex-col w-sm h-auto border-1 rounded-2xl p-6 items-center ">
-      <img src={Icon} alt="" />
-      <h3>อาหารลูกแมว</h3>
-    </div>
-    <div className="flex flex-col w-sm h-auto border-1 rounded-2xl p-6 items-center ">
-      <img src={Icon} alt="" />
-      <h3>อาหารลูกแมว</h3>
-    </div>
-  </div>
-</div>
   );
 }

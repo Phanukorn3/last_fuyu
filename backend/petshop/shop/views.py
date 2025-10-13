@@ -30,7 +30,11 @@ class ProductList(APIView):
         })
     
     def post(self, request):
-        serializer = ProductSerializer(data.request.data)
+        serializer = ProductSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     
 class CustomerstList(APIView):
@@ -49,13 +53,7 @@ class CustomerstList(APIView):
             "customers": serializer.data
         })
 
-# @csrf_exempt
 class Register(APIView):
-    
-    # def get(self, request, format=None):
-    #     regis = User.objects.all()
-    #     serializer = RegisterSerializer(regis, many=True)
-    #     return Response(serializer.data)
 
     def post(self, request, format=None):
         serializer = RegisterSerializer(data=request.data)

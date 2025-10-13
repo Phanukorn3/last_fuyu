@@ -55,6 +55,18 @@ class RegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Password ไม่ตรงกัน")
         return data
 
+    def validate_first_name(self, value):
+        
+        if not value.isalpha():
+            raise serializers.ValidationError("กรุณากรอกชื่อจริงเป็นตัวอักษรเท่านั้น")
+        return value
+
+    def validate_last_name(self, value):
+        
+        if not value.isalpha():
+            raise serializers.ValidationError("กรุณากรอกนามสกุลเป็นตัวอักษรเท่านั้น")
+        return value
+
     def create(self, validated_data):
         validated_data.pop("password2")
         user = User(
