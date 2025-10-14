@@ -22,8 +22,17 @@ export default function Login() {
         "http://localhost:8000/api/login/",
         form
       );
+      
+      // --- ⬇️ ส่วนแก้ไขที่สำคัญที่สุด ⬇️ ---
+      // 1. ดึงข้อมูลที่จำเป็นออกจาก response.data
+      const { user_id, token } = response.data;
 
-      console.log(response.data);
+      // 2. บันทึกข้อมูลทั้งสองอย่างลงใน localStorage
+      localStorage.setItem("userId", user_id);
+      localStorage.setItem("accessToken", token);
+      // --- ⬆️ สิ้นสุดส่วนแก้ไข ⬆️ ---
+
+      console.log("เข้าสู่ระบบสำเร็จ, User ID:", user_id);
       navigate("/user/home");
     } catch (err) {
       console.error(err);
@@ -69,12 +78,12 @@ export default function Login() {
             Login
           </button>
           <div className="flex justify-between">
-          <div className="flex mt-1 mr-5 text-sm items-end text-gray-500 hover:underline hover:text-blue-400">
-            <Link to="/register">หากคุณยังไม่มีบัญชี</Link>
-          </div>
-          <div className="flex mt-1 mr-5 text-sm items-end text-gray-500 hover:underline hover:text-blue-400">
-            <Link to="/resetpassword">ลืมรหัสผ่าน?</Link>
-          </div>
+            <div className="flex mt-1 mr-5 text-sm items-end text-gray-500 hover:underline hover:text-blue-400">
+              <Link to="/register">หากคุณยังไม่มีบัญชี</Link>
+            </div>
+            <div className="flex mt-1 mr-5 text-sm items-end text-gray-500 hover:underline hover:text-blue-400">
+              <Link to="/resetpassword">ลืมรหัสผ่าน?</Link>
+            </div>
           </div>
         </form>
       </div>

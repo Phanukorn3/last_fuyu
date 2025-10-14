@@ -46,7 +46,7 @@ export default function Navbaruser() {
         </div>
 
         {/* ส่วนตรงกลาง: Menu Links */}
-        <ul className="flex gap-10 absolute left-1/2 transform -translate-x-1/2">
+        {/* <ul className="flex gap-10 absolute left-1/2 transform -translate-x-1/2">
           <li className="relative group">
             <button className="text-gray-800 hover:text-red-500 border-b-2 border-transparent font-medium hover:border-red-500 transition duration-200">
               อาหารสำหรับสุนัข
@@ -71,7 +71,7 @@ export default function Navbaruser() {
               </ul>
             </div>
           </li>
-        </ul>
+        </ul> */}
 
         {/* 3. ส่วนด้านขวา: Profile Dropdown */}
         <div className="relative" ref={dropdownRef}>

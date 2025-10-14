@@ -1,29 +1,30 @@
-import React, { useState, useEffect } from "react"; // 👈 1. Import useEffect
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import TextInput from "../components/TextInput";
-import axios from "axios";
+// --- ⬇️ 1. เปลี่ยนไป import axios ที่เราตั้งค่าไว้ ---
+import api from "../api/axiosConfig"; // **แก้ไข path ให้ถูกต้อง**
 
 export default function Profile() {
-  const [form, setForm] = useState({
-    firstname: "",
-    lastname: "",
-    email: "",
-    phone_number: "",
-    address: "",
-  });
-
+  const [form, setForm] = useState({ /* ... */ });
   const navigate = useNavigate();
   const [error, setError] = useState("");
+  const [userId, setUserId] = useState(null);
 
-  // --- ⬇️ 2. ดึงข้อมูลโปรไฟล์เมื่อเปิดหน้า ---
   useEffect(() => {
+    const storedUserId = localStorage.getItem("userId");
+    if (!storedUserId) {
+      alert("กรุณาเข้าสู่ระบบก่อน");
+      navigate("/login");
+      return;
+    }
+    setUserId(storedUserId);
+
     const fetchProfile = async () => {
       try {
-        // **ข้อสันนิษฐาน:** axios ของคุณถูกตั้งค่าให้ส่ง token ไปกับ request โดยอัตโนมัติแล้ว
-        const response = await axios.get("http://localhost:8000/api/profile/");
+        // --- ⬇️ 2. ใช้ `api` และสร้าง URL แบบไดนามิก ---
+        const response = await api.get(`/profile/${storedUserId}/`);
         const profileData = response.data;
 
-        // นำข้อมูลที่ได้มาใส่ใน State ของฟอร์ม
         setForm({
           firstname: profileData.first_name || "",
           lastname: profileData.last_name || "",
@@ -33,25 +34,23 @@ export default function Profile() {
         });
       } catch (err) {
         console.error("ดึงข้อมูลโปรไฟล์ไม่สำเร็จ:", err);
-        setError("ไม่สามารถดึงข้อมูลโปรไฟล์ได้");
+        setError("ไม่สามารถดึงข้อมูลโปรไฟล์ได้ (อาจต้อง Login ใหม่)");
       }
     };
 
-    fetchProfile();
-  }, []); // การใส่ [] ว่างๆ หมายถึงให้ effect นี้ทำงานแค่ครั้งเดียวตอน component โหลดเสร็จ
+ fetchProfile();
+  }, [navigate]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // --- ⬇️ 3. เปลี่ยน handleSubmit ให้ใช้ PATCH เพื่ออัปเดต ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
     try {
-      // ใช้ axios.patch (ไม่ใช่ post) เพื่อส่งข้อมูลไปอัปเดต
-      const response = await axios.patch("http://localhost:8000/api/profile/", {
+      // --- ⬇️ 3. ใช้ `api` และสร้าง URL แบบไดนามิกที่นี่ด้วย ---
+      await api.patch(`/profile/${userId}/`, {
         first_name: form.firstname,
         last_name: form.lastname,
         email: form.email,
@@ -59,19 +58,15 @@ export default function Profile() {
         address: form.address,
       });
 
-      console.log("อัปเดตโปรไฟล์สำเร็จ:", response.data);
-      alert("อัปเดตข้อมูลสำเร็จ!"); // แจ้งเตือนผู้ใช้
+      alert("อัปเดตข้อมูลสำเร็จ!");
     } catch (err) {
       console.error("อัปเดตโปรไฟล์ไม่สำเร็จ:", err);
       const errorData = err.response?.data;
       if (errorData) {
-        // แปลง object error ให้อยู่ในรูปแบบที่อ่านง่าย
         const errorMessages = Object.entries(errorData)
           .map(([key, value]) => `${key}: ${value}`)
-          .join("\n"); // \n คือการขึ้นบรรทัดใหม่
+          .join("\n");
         setError(errorMessages);
-      } else if (data.non_field_errors) {
-        setError(data.non_field_errors[0]);
       } else {
         setError("เกิดข้อผิดพลาดในการอัปเดตข้อมูล");
       }
