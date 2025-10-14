@@ -20,18 +20,22 @@ export default function Product() {
       try {
         const res = await axios.get("http://localhost:8000/api/product/");
         setProducts(res.data.products);
+        // console.log(res.data.products);
 
         const categoriesSet = new Set();
         const quantities = {};
 
         res.data.products.forEach((product) => {
           product.categories.forEach((cat) => {
-            categoriesSet.add(cat);
-            quantities[cat] = (quantities[cat] || 0) + 1;
-          });
+          console.log(cat)
+          categoriesSet.add(cat);
+          quantities[cat] = (quantities[cat] || 0) + 1;
+          console.log(quantities[cat])
         });
-
-        setAllCategories(Array.from(categoriesSet).sort());
+      });
+      
+      setAllCategories(Array.from(categoriesSet).sort());
+      console.log(quantities)
         setAllCategoryQuantities(quantities);
       } catch (err) {
         console.error("ไม่สามารถดึงสินค้า:", err);
@@ -52,6 +56,7 @@ export default function Product() {
         params,
       });
       setProducts(res.data.products);
+      console.log(res.data.products);
     } catch (err) {
       console.error("ไม่สามารถดึงสินค้า filtered:", err);
     }
@@ -111,7 +116,6 @@ export default function Product() {
     );
   };
 
-  // สองฟังก์ชันนี้แยกไว้ถูกต้องแล้วครับ
   const openCart = () => setIsCartOpen(true);
   const closeCart = () => setIsCartOpen(false);
 

@@ -5,8 +5,9 @@ from rest_framework import status
 from django.db.models import Sum, Value
 from django.db.models.functions import Concat
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.db.models import Q
+
 
 from shop.models import *
 from shop.serializers import ProductSerializer, CustomerSerializer, RegisterSerializer, LoginSerializer, ResetPasswordSerializer
@@ -21,11 +22,14 @@ class ProductList(APIView):
         total_products = Product.objects.aggregate(total=Sum('quantity'))
         min_quantity = products.first().quantity
         max_quantity = products.last().quantity
+
+        
         categories = request.GET.getlist("categories[]", [])
         if categories:
             products = products.filter(categories__name__in=categories).distinct()
 
-        # รับ filter price
+
+        # filter price
         price_ranges = request.GET.getlist("price[]", [])
         price_filters = Q()
         for range_str in price_ranges:
@@ -96,11 +100,17 @@ class CategoryList(APIView):
         categories = Category.objects.all().values_list('name', flat=True)
         return Response({"categories": list(categories)})
 
-# ยังไม่เสร้จ
+
 class ResetPassword(APIView):
+    @csrf_exempt
     def post(self, request, format=None):
         serializer = ResetPasswordSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class Logout(APIView):
+    def post(self, request, format=None):
+        logout(request)
+        return Response(status=status.HTTP_200_OK)

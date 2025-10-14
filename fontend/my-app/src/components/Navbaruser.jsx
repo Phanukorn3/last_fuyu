@@ -69,7 +69,7 @@ export default function Navbaruser() {
           </li>
 
         </ul>
-            <div className="flex items-center ml-auto mr-10">
+            {/* <div className="flex items-center ml-auto mr-10">
           <input
             type="text"
             placeholder="ค้นหาสินค้า..."
@@ -78,7 +78,7 @@ export default function Navbaruser() {
           <button className="bg-red-500 text-white px-3 py-1 rounded-r-md hover:bg-red-600 transition">
             ค้นหา
           </button>
-        </div>
+        </div> */}
       </nav>
     </div>
   );

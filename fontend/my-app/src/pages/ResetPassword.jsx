@@ -1,17 +1,15 @@
 import React, { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Icon from "../assets/fuyuicon.png";
 import TextInput from "../components/TextInput";
 import axios from "axios";
 
 export default function ResetPassword() {
-  // รับ uid และ token จาก URL
-  const { uid, token } = useParams();
 
   const [form, setForm] = useState({
     username: "",
     new_password: "",
-    con_new_password: "",
+    confirm_password: "",
   });
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -24,49 +22,33 @@ export default function ResetPassword() {
     e.preventDefault();
     setError("");
 
-    // Client-Side Validation (ตรวจสอบข้อมูลก่อนส่ง)
-    if (!form.new_password || !form.con_new_password) {
-      setError("กรุณากรอกรหัสผ่านทั้งสองช่อง");
-      return;
-    }
-    if (form.new_password !== form.con_new_password) {
+    if (form.new_password !== form.confirm_password) {
       setError("รหัสผ่านทั้งสองช่องไม่ตรงกัน");
       return;
     }
-    if (form.new_password.length < 8) {
-      setError("รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร");
-      return;
-    }
+  console.log(form.username)
+  console.log(form.new_password)
+  console.log(form.confirm_password)
 
     try {
-      // ส่ง uid และ token ไปพร้อมกับรหัสผ่านใหม่
-      // สังเกต: เราไม่ได้ส่ง form.username ไปกับ request นี้
-      // เพราะ API มักจะยืนยันตัวตนจาก uid และ token เท่านั้น
       await axios.post(
-        "http://localhost:8000/api/reset_password/",
-        {
-          uid: uid,
-          token: token,
-          new_password: form.new_password,
-          con_new_password: form.con_new_password,
-        }
+        "http://localhost:8000/api/resetpassword/",
+        form
       );
 
-      // เมื่อสำเร็จ ให้ส่งผู้ใช้ไปหน้า Login พร้อมข้อความแจ้งเตือน
-      navigate("/login", {
-        state: {
-          message: "ตั้งรหัสผ่านใหม่สำเร็จแล้ว! กรุณาเข้าสู่ระบบอีกครั้ง",
-        },
-      });
+      navigate("/login");
     } catch (err) {
       console.error(err);
       if (err.response && err.response.data) {
         const data = err.response.data;
-        if (data.new_password) {
-          setError(data.new_password.join(" "));
-        } else if (data.token) {
-          setError("ลิงก์ตั้งรหัสผ่านไม่ถูกต้องหรือหมดอายุแล้ว");
-        } else {
+        if (data.username) {
+          setError(data.username[0]); 
+        } else if (data.password) {
+          setError(data.password[0]); 
+        } else if (data.new_password) {
+          setError(data.new_password[0]);
+        }
+        else {
           setError("เกิดข้อผิดพลาดบางอย่าง กรุณาลองใหม่อีกครั้ง");
         }
       } else {
@@ -74,7 +56,7 @@ export default function ResetPassword() {
       }
     }
   };
-
+  
   return (
     <div className="flex justify-center items-center min-h-screen">
       <div className="w-md mx-md p-6 mb-25">
@@ -101,8 +83,8 @@ export default function ResetPassword() {
           <TextInput
             label="Confirm New Password"
             type="password"
-            name="con_new_password"
-            value={form.con_new_password}
+            name="confirm_password"
+            value={form.confirm_password}
             onChange={handleChange}
             placeholder="กรอกรหัสผ่านใหม่อีกครั้ง"
           />

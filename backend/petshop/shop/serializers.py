@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate
 
 class ProductSerializer(serializers.ModelSerializer):
     categories = serializers.StringRelatedField(many=True)
+
     class Meta:
         model = Product
         fields = [
@@ -54,16 +55,19 @@ class RegisterSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if data["password"] != data["password2"]:
             raise serializers.ValidationError("Password ไม่ตรงกัน")
+
+        if len(data["password"]) < 6:
+            raise serializers.ValidationError("กรุณาตั้งรหัสผ่านมากกว่า 6 ตัวอักษร")
         return data
 
     def validate_first_name(self, value):
-        
+
         if not value.isalpha():
             raise serializers.ValidationError("กรุณากรอกชื่อจริงเป็นตัวอักษรเท่านั้น")
         return value
 
     def validate_last_name(self, value):
-        
+
         if not value.isalpha():
             raise serializers.ValidationError("กรุณากรอกนามสกุลเป็นตัวอักษรเท่านั้น")
         return value
@@ -78,6 +82,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         user.set_password(validated_data["password"])
         user.save()
+
+        customer = Customer(user=user)
+        customer.save()
         return user
 
 
@@ -95,21 +102,42 @@ class LoginSerializer(serializers.Serializer):
         user = authenticate(username=username, password=password)
         if user is None:
             raise serializers.ValidationError("Username หรือ password ไม่ถูกต้อง")
-        
-        data['user'] = user
+
+        data["user"] = user
         return data
 
-# ยังไม่เสร็จ
+
 class ResetPasswordSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    password = serializers.CharField(write_only=True)
-    confirm_pass = serializers.CharField(write_only=True)
-    
+    username = serializers.CharField(required=True)
+    new_password = serializers.CharField(write_only=True, required=True)
+    confirm_password = serializers.CharField(write_only=True, required=True)
+
+    def validate_username(self, value):
+
+        try:
+            user = User.objects.get(username=value)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("ไม่พบชื่อผู้ใช้ในระบบ")
+        self.user = user
+        return value
+
     def validate(self, data):
-        username = data.get("username")
-        password = data.get("password")
-        confirm_pass = data.get("con_new_password")
-        
-        if not username or not password or not confirm_pass:
-            raise serializers.ValidationError("กรุณากรอกข้อมูลให้ครบ")
+        new_password = data.get("new_password")
+        confirm_password = data.get("confirm_password")
+
+        if new_password != confirm_password:
+            raise serializers.ValidationError("รหัสผ่านไม่ตรงกัน")
+
+        if len(new_password) < 6:
+            raise serializers.ValidationError("กรุณาตั้งรหัสผ่านใหม่ มากกว่า 6 ตัวอักษร")
+
         return data
+
+    def save(self):
+        user = self.user
+        new_password = self.validated_data["new_password"]
+
+        user.set_password(new_password)
+        user.save()
+
+        return user
