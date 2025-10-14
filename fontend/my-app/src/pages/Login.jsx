@@ -23,14 +23,11 @@ export default function Login() {
         form
       );
       
-      // --- ⬇️ ส่วนแก้ไขที่สำคัญที่สุด ⬇️ ---
-      // 1. ดึงข้อมูลที่จำเป็นออกจาก response.data
       const { user_id, token } = response.data;
 
-      // 2. บันทึกข้อมูลทั้งสองอย่างลงใน localStorage
       localStorage.setItem("userId", user_id);
       localStorage.setItem("accessToken", token);
-      // --- ⬆️ สิ้นสุดส่วนแก้ไข ⬆️ ---
+
 
       console.log("เข้าสู่ระบบสำเร็จ, User ID:", user_id);
       navigate("/user/home");

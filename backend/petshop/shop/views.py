@@ -16,7 +16,6 @@ from shop.models import *
 from shop.serializers import ProductSerializer, CustomerSerializer, RegisterSerializer, LoginSerializer, ResetPasswordSerializer, ProfileSerializer
 
 class ProductList(APIView):
-
     def get(self, request):
 
         products = Product.objects.all()
@@ -137,13 +136,11 @@ class ProfileView(APIView):
         """สำหรับดึงข้อมูลโปรไฟล์"""
         user = self.get_object(pk)
 
-        # --- ⬇️ ส่วนตรวจสอบความปลอดภัยที่สำคัญที่สุด ⬇️ ---
         if request.user != user:
             return Response(
                 {"detail": "คุณไม่มีสิทธิ์เข้าถึงโปรไฟล์นี้"},
                 status=status.HTTP_403_FORBIDDEN
             )
-        # --- ⬆️ สิ้นสุดส่วนตรวจสอบ ⬆️ ---
 
         customer = Customer.objects.get(user=user)
         serializer = ProfileSerializer(customer)
@@ -153,13 +150,11 @@ class ProfileView(APIView):
         """สำหรับอัปเดตข้อมูลโปรไฟล์"""
         user = self.get_object(pk)
 
-        # --- ⬇️ ตรวจสอบความปลอดภัยอีกครั้ง ⬇️ ---
         if request.user != user:
             return Response(
                 {"detail": "คุณไม่มีสิทธิ์แก้ไขโปรไฟล์นี้"},
                 status=status.HTTP_403_FORBIDDEN
             )
-        # --- ⬆️ สิ้นสุดส่วนตรวจสอบ ⬆️ ---
 
         customer = Customer.objects.get(user=user)
         serializer = ProfileSerializer(customer, data=request.data, partial=True)

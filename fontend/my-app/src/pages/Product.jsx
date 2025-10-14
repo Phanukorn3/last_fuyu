@@ -91,7 +91,7 @@ export default function Product() {
         (item) => item.id === productToAdd.id
       );
 
-      // ถ้ามีของอยู่แล้ว
+      // มีของอยู่แล้ว
       if (existingItem) {
         return prevItems.map((item) =>
           item.id === productToAdd.id
@@ -103,15 +103,9 @@ export default function Product() {
       // ถ้ายังไม่มี
       return [...prevItems, { ...productToAdd, quantity: 1 }];
     });
-
-    // setIsCartOpen(true);
-
-    // (ตัวเลือก) console.log สำหรับเช็คค่า
-    console.log(`${productToAdd.name} added to cart!`);
   };
   const handleRemoveFromCart = (productIdToRemove) => {
     setCartItems((prevItems) =>
-      // สร้าง array ใหม่ โดยกรองเอาเฉพาะสินค้าที่ id ไม่ตรงกับ id ที่ต้องการลบ
       prevItems.filter((item) => item.id !== productIdToRemove)
     );
   };
@@ -122,7 +116,6 @@ export default function Product() {
   return (
     <div className="container mx-auto mt-[12%] px-4 sm:px-6 lg:px-8">
       <div className="flex flex-row gap-8">
-        {/* Filter sidebar */}
         <div className="w-1/4 border-r-1 border-gray-400">
           <Filterbar
             categories={allCategories}
@@ -135,7 +128,6 @@ export default function Product() {
           />
         </div>
 
-        {/* Product grid */}
         <div className="w-3/4">
           <div className="flex flex-wrap gap-6">
             {products.map((product) => (

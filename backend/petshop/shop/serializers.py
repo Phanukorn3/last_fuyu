@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from shop.models import *
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -86,6 +86,9 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         customer = Customer(user=user)
         customer.save()
+        
+        user_group = Group.objects.get(name='User')
+        user.groups.add(user_group)
         return user
 
 

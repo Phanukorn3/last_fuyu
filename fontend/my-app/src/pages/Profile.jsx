@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import TextInput from "../components/TextInput";
-// --- ⬇️ 1. เปลี่ยนไป import axios ที่เราตั้งค่าไว้ ---
-import api from "../api/axiosConfig"; // **แก้ไข path ให้ถูกต้อง**
+import api from "../api/axiosConfig";
 
 export default function Profile() {
-  const [form, setForm] = useState({ /* ... */ });
+  const [form, setForm] = useState({ });
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [userId, setUserId] = useState(null);
@@ -21,7 +20,7 @@ export default function Profile() {
 
     const fetchProfile = async () => {
       try {
-        // --- ⬇️ 2. ใช้ `api` และสร้าง URL แบบไดนามิก ---
+        // api ไดนามิก
         const response = await api.get(`/profile/${storedUserId}/`);
         const profileData = response.data;
 
@@ -49,7 +48,7 @@ export default function Profile() {
     e.preventDefault();
     setError("");
     try {
-      // --- ⬇️ 3. ใช้ `api` และสร้าง URL แบบไดนามิกที่นี่ด้วย ---
+      // api ไดนามิก
       await api.patch(`/profile/${userId}/`, {
         first_name: form.firstname,
         last_name: form.lastname,
@@ -59,6 +58,7 @@ export default function Profile() {
       });
 
       alert("อัปเดตข้อมูลสำเร็จ!");
+      navigate("/user/home");
     } catch (err) {
       console.error("อัปเดตโปรไฟล์ไม่สำเร็จ:", err);
       const errorData = err.response?.data;
@@ -78,7 +78,6 @@ export default function Profile() {
       <div className="w-md mx-md p-6">
         <h2 className="text-4xl mb-10 text-center font-sans">บัญชีของคุณ</h2>
         <form onSubmit={handleSubmit}>
-          {/* ... TextInput ทั้งหมดของคุณ ... */}
           <div className="flex">
             <TextInput
               label="Firstname"
@@ -123,7 +122,6 @@ export default function Profile() {
             placeholder="กรอกที่อยู่ของคุณ"
           />
 
-          {/* เพิ่ม whitespace-pre-line เพื่อให้ \n ทำงาน */}
           {error && (
             <p className="text-red-500 text-sm mt-2 whitespace-pre-line">
               {error}
