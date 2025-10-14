@@ -4,32 +4,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 
 
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = [
-            "id",
-            "name"
-        ]
-
 class ProductSerializer(serializers.ModelSerializer):
     categories = serializers.StringRelatedField(many=True)
-    class Meta:
-        model = Product
-        fields = [
-            "id",
-            "picture",
-            "name",
-            "description",
-            "price",
-            "quantity",
-            "crate_at",
-            "categories",
-        ]
-
-class ProductReadSerializer(serializers.ModelSerializer):
-    categories = CategorySerializer(many=True, read_only=True)
-
     class Meta:
         model = Product
         fields = [

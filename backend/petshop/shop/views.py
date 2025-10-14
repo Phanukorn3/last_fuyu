@@ -2,14 +2,14 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.db.models import Sum, Value, Min, Max
+from django.db.models import Sum, Value
 from django.db.models.functions import Concat
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login
 from django.db.models import Q
 
 from shop.models import *
-from shop.serializers import ProductSerializer, CustomerSerializer, RegisterSerializer, LoginSerializer, ResetPasswordSerializer, ProductReadSerializer
+from shop.serializers import ProductSerializer, CustomerSerializer, RegisterSerializer, LoginSerializer, ResetPasswordSerializer
 # Create your views here.
 
 
@@ -17,15 +17,15 @@ class ProductList(APIView):
 
     def get(self, request):
 
-        products = Product.objects.all().order_by('id')
-        stats = Product.objects.aggregate(
-            min_quantity=Min('quantity'),
-            max_quantity=Max('quantity'),
-            total_products=Sum('quantity')
-        )
+        products = Product.objects.all()
+        total_products = Product.objects.aggregate(total=Sum('quantity'))
+        min_quantity = products.first().quantity
+        max_quantity = products.last().quantity
+        categories = request.GET.getlist("categories[]", [])
+        if categories:
+            products = products.filter(categories__name__in=categories).distinct()
 
         # รับ filter price
-
         price_ranges = request.GET.getlist("price[]", [])
         price_filters = Q()
         for range_str in price_ranges:
@@ -40,11 +40,11 @@ class ProductList(APIView):
         if price_filters:
             products = products.filter(price_filters)
 
-        serializer = ProductReadSerializer(products, many=True)
+        serializer = ProductSerializer(products, many=True)
         return Response({
-            "min_quantity": stats.get('min_quantity'),
-            "max_quantity": stats.get('max_quantity'),
-            "total_products": stats.get('total_products'), 
+            "min_quantity": min_quantity,
+            "max_quantity": max_quantity,
+            "total_products": total_products,
             "products": serializer.data
         })
     
@@ -55,53 +55,7 @@ class ProductList(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-class ProductDetail(APIView):
     
-    def get_object(self, pk):
-        try:
-            return Product.objects.get(pk=pk)
-        except Product.DoesNotExist:
-            raise Http404
-        
-    def get(self, request, pk, format=None):
-        
-        product = self.get_object(pk)
-        serializer = ProductSerializer(product)
-        return Response(serializer.data)
-        
-    def put(self, request, pk, format=None):
-        product = self.get_object(pk)
-        serializer = ProductSerializer(product, data=request.data)
-        
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk, format=None):
-        product = self.get_object(pk)
-        product.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-    
-
-class AddProduct(APIView):
-    def get(self, request):
-        categories = Category.objects.all()
-        serializer = CategorySerializer(categories, many=True)
-
-        return Response({
-            "categories": serializer.data
-        })
-    
-    def post(self, request):
-        serializer = ProductSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 class CustomerstList(APIView):
 
     def get(self, request, format=None):
