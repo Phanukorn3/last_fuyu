@@ -5,7 +5,6 @@ import TextInput from "../components/TextInput";
 import axios from "axios";
 
 export default function ResetPassword() {
-
   const [form, setForm] = useState({
     username: "",
     new_password: "",
@@ -26,15 +25,12 @@ export default function ResetPassword() {
       setError("รหัสผ่านทั้งสองช่องไม่ตรงกัน");
       return;
     }
-  console.log(form.username)
-  console.log(form.new_password)
-  console.log(form.confirm_password)
+    console.log(form.username);
+    console.log(form.new_password);
+    console.log(form.confirm_password);
 
     try {
-      await axios.post(
-        "http://localhost:8000/api/resetpassword/",
-        form
-      );
+      await axios.post("http://localhost:8000/api/resetpassword/", form);
 
       navigate("/login");
     } catch (err) {
@@ -42,13 +38,14 @@ export default function ResetPassword() {
       if (err.response && err.response.data) {
         const data = err.response.data;
         if (data.username) {
-          setError(data.username[0]); 
+          setError(data.username[0]);
         } else if (data.password) {
-          setError(data.password[0]); 
+          setError(data.password[0]);
         } else if (data.new_password) {
           setError(data.new_password[0]);
-        }
-        else {
+        } else if (data.non_field_errors) {
+          setError(data.non_field_errors[0]);
+        } else {
           setError("เกิดข้อผิดพลาดบางอย่าง กรุณาลองใหม่อีกครั้ง");
         }
       } else {
@@ -56,7 +53,7 @@ export default function ResetPassword() {
       }
     }
   };
-  
+
   return (
     <div className="flex justify-center items-center min-h-screen">
       <div className="w-md mx-md p-6 mb-25">

@@ -8,6 +8,7 @@ import Register from "./pages/Register"
 import Home from "./pages/Home"
 import Product from "./pages/Product"
 import Resetpassword from "./pages/ResetPassword"
+import Profile from "./pages/Profile"
 
 
 function LayoutWithNavbar() {
@@ -31,6 +32,7 @@ function LayoutWithNavbaruser() {
         <Routes>
           <Route path="/home" element={<Home />} />
           <Route path="/product" element={<Product />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </div>
     </>
