@@ -9,4 +9,6 @@ urlpatterns = [
     path('logout/', views.Logout.as_view()),
     path("categories/", views.CategoryList.as_view()),
     path("resetpassword/", views.ResetPassword.as_view()),
+    path("profile/<int:pk>/", views.ProfileView.as_view()),
+    path("user/me/", views.CurrentUserView.as_view()),
 ]

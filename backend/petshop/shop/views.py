@@ -7,12 +7,13 @@ from django.db.models.functions import Concat
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login, logout
 from django.db.models import Q
+from django.http import Http404
+from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth.models import User
 
 
 from shop.models import *
-from shop.serializers import ProductSerializer, CustomerSerializer, RegisterSerializer, LoginSerializer, ResetPasswordSerializer
-# Create your views here.
-
+from shop.serializers import ProductSerializer, CustomerSerializer, RegisterSerializer, LoginSerializer, ResetPasswordSerializer, ProfileSerializer
 
 class ProductList(APIView):
 
@@ -86,13 +87,18 @@ class Register(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class Login(APIView):
-
     def post(self, request, format=None):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.validated_data['user']
-            login(request, user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            login(request, user) # ยังคง login session ไว้
+            
+            # ส่งข้อมูลจาก serializer กลับไป ซึ่งตอนนี้มี token และ user_id แล้ว
+            return Response({
+                "user_id": serializer.validated_data['user_id'],
+                "token": serializer.validated_data['access'] # ส่ง access token กลับไป
+            }, status=status.HTTP_200_OK)
+            
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class CategoryList(APIView):
@@ -114,3 +120,64 @@ class Logout(APIView):
     def post(self, request, format=None):
         logout(request)
         return Response(status=status.HTTP_200_OK)
+
+
+class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get_object(self, pk):
+        """
+        Helper method เพื่อดึง User จาก pk
+        """
+        try:
+            return User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        """สำหรับดึงข้อมูลโปรไฟล์"""
+        user = self.get_object(pk)
+
+        # --- ⬇️ ส่วนตรวจสอบความปลอดภัยที่สำคัญที่สุด ⬇️ ---
+        if request.user != user:
+            return Response(
+                {"detail": "คุณไม่มีสิทธิ์เข้าถึงโปรไฟล์นี้"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        # --- ⬆️ สิ้นสุดส่วนตรวจสอบ ⬆️ ---
+
+        customer = Customer.objects.get(user=user)
+        serializer = ProfileSerializer(customer)
+        return Response(serializer.data)
+
+    def patch(self, request, pk, format=None):
+        """สำหรับอัปเดตข้อมูลโปรไฟล์"""
+        user = self.get_object(pk)
+
+        # --- ⬇️ ตรวจสอบความปลอดภัยอีกครั้ง ⬇️ ---
+        if request.user != user:
+            return Response(
+                {"detail": "คุณไม่มีสิทธิ์แก้ไขโปรไฟล์นี้"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        # --- ⬆️ สิ้นสุดส่วนตรวจสอบ ⬆️ ---
+
+        customer = Customer.objects.get(user=user)
+        serializer = ProfileSerializer(customer, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class CurrentUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        """
+        ส่งคืนข้อมูลพื้นฐานของผู้ใช้ที่กำลัง login อยู่
+        """
+        # เราใช้ request.user ซึ่ง Django จัดการให้แล้วว่าคือใคร
+        customer = Customer.objects.get(user=request.user)
+        
+        # ใช้ ProfileSerializer เดิมของคุณได้เลย!
+        serializer = ProfileSerializer(customer) 
+        return Response(serializer.data, status=status.HTTP_200_OK)

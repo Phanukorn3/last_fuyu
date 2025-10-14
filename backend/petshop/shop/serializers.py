@@ -2,6 +2,7 @@ from rest_framework import serializers
 from shop.models import *
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -102,9 +103,17 @@ class LoginSerializer(serializers.Serializer):
         user = authenticate(username=username, password=password)
         if user is None:
             raise serializers.ValidationError("Username หรือ password ไม่ถูกต้อง")
-
-        data["user"] = user
-        return data
+        
+        # สร้าง Token สำหรับ user ที่ผ่านการตรวจสอบแล้ว
+        refresh = RefreshToken.for_user(user)
+        
+        # ส่งข้อมูลทั้งหมดกลับไปให้ View
+        return {
+            'user': user,
+            'user_id': user.id,
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        }
 
 
 class ResetPasswordSerializer(serializers.Serializer):
@@ -141,3 +150,30 @@ class ResetPasswordSerializer(serializers.Serializer):
         user.save()
 
         return user
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username')
+    first_name = serializers.CharField(
+        source="user.first_name", required=False, allow_blank=True
+    )
+    last_name = serializers.CharField(
+        source="user.last_name", required=False, allow_blank=True
+    )
+    email = serializers.EmailField(source="user.email", required=False)
+
+    class Meta:
+        model = Customer
+        fields = ["id", "first_name", "last_name", "email", "phone_number", "address", 'username']
+
+    # (สำคัญ) เพิ่ม update method เพื่อจัดการข้อมูลที่ซ้อนกัน
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop("user", {})
+        user = instance.user
+
+        user.first_name = user_data.get("first_name", user.first_name)
+        user.last_name = user_data.get("last_name", user.last_name)
+        user.email = user_data.get("email", user.email)
+        user.save()
+        
+        return super().update(instance, validated_data)
